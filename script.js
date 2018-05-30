@@ -8,8 +8,8 @@ function count(){
   if(!startedCounting){
     startedCounting = true;
     startTime = new Date();
+    localStorage.setItem('date', startTime);
     MAX = document.getElementById('in-max').value;
-    console.log(MAX);
 
     //dont allow user to edit their input max
     document.getElementById('in-max').disabled = true;
@@ -24,7 +24,7 @@ function count(){
     document.getElementById('content').appendChild(stopButton);
   }
   else{
-    if(currentTotal+1 == MAX){
+    if(currentTotal >= MAX-1){
       document.getElementById('btn-count').remove();
       document.getElementById('btn-stop').remove();
       var finishText = document.createTextNode('MAX AMOUNT REACHED');
@@ -34,9 +34,12 @@ function count(){
       var displayTime = document.createTextNode(totalTime);
       document.getElementById('content').appendChild(document.createElement('br'));
       document.getElementById('content').appendChild(displayTime);
+      localStorage.removeItem('current');
     }
     else{
       currentTotal++;
+      localStorage.setItem('current', currentTotal);
+      localStorage.setItem('max', MAX);
     }
   }
 }
@@ -64,5 +67,31 @@ function forceStop(){
   document.getElementById('content').appendChild(num);
   document.getElementById('content').appendChild(document.createElement('br'));
   document.getElementById('content').appendChild(displayTime);
+  localStorage.removeItem('current');
+}
 
+function onLoad(){
+  if(localStorage.getItem('current')){
+    startedCounting=false;
+    tempStartTime = localStorage.getItem('date');
+
+    startedCounting = true;
+    document.getElementById('in-max').disabled = true;
+    //change button so that it now adds 1 to counter
+    document.getElementById('btn-count').innerHTML = '+1';
+
+    //Add stop button
+    var stopButton = document.createElement('button');
+    stopButton.id = 'btn-stop';
+    stopButton.addEventListener('click', forceStop);
+    stopButton.appendChild(document.createTextNode('STOP'));
+    document.getElementById('content').appendChild(stopButton);
+
+    startTime = new Date(tempStartTime);
+    currentTotal = localStorage.getItem('current');
+    MAX = localStorage.getItem('max');
+    document.getElementById('in-max').value = localStorage.getItem('max');
+    localStorage.removeItem('current');
+    localStorage.removeItem('max');
+  }
 }
